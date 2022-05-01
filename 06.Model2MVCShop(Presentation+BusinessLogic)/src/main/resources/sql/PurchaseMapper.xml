@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PurchaseMapper">
+ 	
+	<resultMap id="purchaseSelectMap" type="purchase">
+    	<result property="tranNo" 			column="tran_no" 			jdbcType="NUMERIC"/>
+		<result property="paymentOption" 	column="payment_option" 	jdbcType="CHAR" />
+		<result property="receiverName" 	column="receiver_Name" 		jdbcType="VARCHAR" />
+		<result property="receiverPhone" 	column="receiver_phone" 	jdbcType="VARCHAR" />
+		<result property="divyAddr" 		column="demailaddr" 		jdbcType="VARCHAR" />
+		<result property="divyRequest" 		column="dlvy_request" 		jdbcType="VARCHAR" />
+		<result property="tranCode" 		column="tran_status_code" 	jdbcType="CHAR" />
+		<result property="orderDate" 		column="order_data" 		jdbcType="DATE" />
+		<result property="divyDate" 		column="dlvy_date" 		    jdbcType="VARCHAR" />
+		
+		<association property="buyer" javaType="user" >
+			<result property="userId" 	  column="user_id" 			jdbcType="VARCHAR"/>
+			<result property="userName"	  column="user_name" 		jdbcType="VARCHAR" />
+			<result property="password"   column="password" 		jdbcType="VARCHAR" />
+			<result property="role" 	  column="role" 			jdbcType="VARCHAR" />
+			<result property="ssn" 		  column="ssn" 				jdbcType="VARCHAR" />
+			<result property="phone" 	  column="cell_phone" 		jdbcType="VARCHAR" />
+			<result property="addr" 	  column="addr" 			jdbcType="VARCHAR" />
+			<result property="email" 	  column="email" 			jdbcType="VARCHAR" />
+			<result property="regDate"    column="user_reg_date"    jdbcType="DATE"/>
+		</association>
+		
+		<association property="purchaseProd" javaType="product" >
+			<result property="prodNo" 		column="prod_no" 		 jdbcType="NUMERIC"/>
+			<result property="prodName"	    column="prod_name" 		 jdbcType="VARCHAR" />
+			<result property="prodDetail" 	column="prod_detail" 	 jdbcType="VARCHAR" />
+			<result property="manuDate" 	column="manufacture_day" jdbcType="VARCHAR" />
+			<result property="price" 		column="price" 			 jdbcType="NUMERIC" />
+			<result property="fileName" 	column="image_file" 	 jdbcType="VARCHAR" />
+		</association>
+	</resultMap>
+	
+	
+	<!-- SQL : INSERT -->
+	<insert 	id="addPurchase" parameterType="purchase" >
+	 	INSERT 
+	 	INTO transaction 
+	 	VALUES (seq_transaction_tran_no.NEXTVAL,#{purchaseProd.prodNo:NUMERIC},#{buyer.userId:VARCHAR},
+	 	       #{paymentOption:VARCHAR},#{receiverName:VARCHAR},#{receiverPhone:VARCHAR},#{divyAddr:VARCHAR},
+	 	       #{divyRequest:VARCHAR},2,SYSDATE, #{divyDate:VARCHAR})
+	 </insert>
+	 
+	 
+	 <!-- SQL : SELECT ONE -->
+	 <select 	id="getPurchase"	parameterType="int"	resultMap="purchaseSelectMap">
+		SELECT
+		*
+		FROM transaction t, product p, users u
+		WHERE t.prod_no=p.prod_no AND t.buyer_id=u.user_id AND tran_no = #{tranNo}
+	 </select>
+	 
+	 
+	 <!-- SQL : UPDATE -->
+	 <update	id="updatePurchase"	parameterType="purchase" >
+	   	UPDATE transaction
+	   	<set>
+	   		payment_option= #{paymentOption}, 
+	   		receiver_name = #{receiverName}, 
+	   		receiver_phone= #{receiverPhone}, 
+	   		demailaddr = #{divyAddr}, 
+	   		dlvy_request = #{divyRequest}, 
+	   		dlvy_date = #{divyDate:VARCHAR}
+	   	</set>
+	   	WHERE tran_no = #{tranNo}
+	 </update>
+	 
+	 
+	 <!-- SQL : UPDATE -->
+	 <update	id="updateTranCode"	parameterType="purchase" >
+	   	UPDATE transaction
+	   	<set>
+	   		tran_status_code= #{tranCode}, 
+	   	</set>
+	   	WHERE prod_no = #{purchaseProd.prodNo}
+	 </update>
+	 
+	 
+	 <!-- SQL : SELECT LIST -->
+	<select  id="getPurchaseList"  parameterType="map"	resultMap="purchaseSelectMap">
+	  	SELECT *
+	  	FROM (	SELECT inner_table.* , ROWNUM AS row_seq
+	  					FROM		(	 SELECT * FROM transaction
+				                         WHERE buyer_id=#{userId}
+				                         ORDER BY tran_no ) inner_table
+						WHERE ROWNUM <![CDATA[<=]]> #{search.currentPage}*#{search.pageSize} )
+  		WHERE row_seq BETWEEN (#{search.currentPage}-1)*#{search.pageSize}+1
+  		AND #{search.currentPage}*#{search.pageSize} 
+	 </select>
+	 	<!--  위 두번째 subQuery 의  
+	 			WHERE ROWNUM &lt;= #{endRowNum} ) 는
+	 			WHERE ROWNUM <= #{endRowNum} ) 의미이며..
+	 			< 는 keyword 로 &lt; 를	사용.
+	 			
+	 			<![CDATA[  ~~~  ]]> 를 이용하여 아래와 같이 사용  할 수 있다.
+	 			CDATA ==> Character Data 의 의미 Java 에서 \n 같은 특수문자 처리  
+
+				WHERE ROWNUM <![CDATA[ <=]]> #{endRowNum} )
+		-->
+
+	
+	<!-- SQL : SELECT ROW Count -->	 
+	 <select  id="getTotalCount"  parameterType="purchase"	 resultType="int">
+	  	SELECT COUNT(*)
+	  	FROM(	SELECT *
+				FROM transaction
+				WHERE buyer_id=#{buyer.userId}) countTable						
+	 </select>
+	 
+	 
+	 
+</mapper>

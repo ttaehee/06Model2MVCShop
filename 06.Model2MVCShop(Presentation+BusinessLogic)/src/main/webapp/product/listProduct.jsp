@@ -2,6 +2,7 @@
     pageEncoding="EUC-KR"%>
     
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
     
 <%-- /////////////////////// EL / JSTL 적용으로 주석 처리 ////////////////////////
 <%@ page import="java.util.List"  %>
@@ -42,6 +43,7 @@
 <div style="width:98%; margin-left:10px;">
 
 <form name="detailForm" action="/listProduct.do" method="post">
+<input type="hidden" name="menu" value="${menu}"/>
 
 <table width="100%" height="37" border="0" cellpadding="0"	cellspacing="0">
 	<tr>
@@ -53,7 +55,19 @@
 				<tr>
 					<td width="93%" class="ct_ttl01">
 					
-							상품관리
+					<%-- /////////////////////// EL / JSTL 적용으로 주석 처리 ////////////////////////
+							<% if(menu.equals("manage")){ %>
+					
+							   상품관리
+							<%}else if(menu.equals("search")){ %>
+							   상품 목록조회
+							<%} %>
+					/////////////////////// EL / JSTL 적용으로 주석 처리 //////////////////////// --%>
+					
+				<c:choose>
+				  <c:when test="${menu eq 'manage'}">상품관리</c:when>
+				  <c:when test="${menu eq 'search'}">상품 목록조회</c:when>
+				</c:choose>
 					
 					</td>
 				</tr>
@@ -131,7 +145,6 @@
 	
 	<%-- /////////////////////// EL / JSTL 적용으로 주석 처리 ////////////////////////
 	<% 	
-	    String menu= (String)request.getAttribute("menu");
 	    System.out.println("listproduct.jsp menu:"+menu);
 
 		for(int i=0; i<list.size(); i++) {
@@ -152,16 +165,46 @@
 		<td></td>
 		<td align="left">
 		
-			판매중
+			<%if(menu.equals("manage")){ %>
+		<%    if(vo.getProTranCode()==null){ %>
+		        
+		        판매중
+		<%    }else if(vo.getProTranCode().trim().equals("2")){ %>
+			    
+			    구매완료
 		
+					<a href="/updateTranCode.do?prodNo=<%=vo.getProdNo() %>&tranCode=3">배송하기</a>
+	    <%    }else if(vo.getProTranCode().trim().equals("3")){ %>
+			
+			    배송중
+			
+			        <a href="/updateTranCode.do?prodNo=<%=vo.getProdNo() %>&tranCode=4">배송완료</a>
+	    <%    }else if(vo.getProTranCode().trim().equals("4")){ %>
+			        
+	    	    배송완료
+	    	    
+	    <%     } %>
+		<%}else if(menu.equals("search")){ %>
+		<%     
+		      if(vo.getProTranCode()!=null){
+		    	  if(vo.getProTranCode().trim().equals("2")||vo.getProTranCode().trim().equals("3")||vo.getProTranCode().trim().equals("4")){%>
+		            재고없음
+		          <%} %>
+		<%    }else{ %>
+			    판매중
+        <%    } %>
+        <%} %>
+		 
 		</td>	
 	</tr>
 	<tr>
 		<td colspan="11" bgcolor="D6D7D6" height="1"></td>
 	</tr>
-	<% } %>/////////////////////// EL / JSTL 적용으로 주석 처리 //////////////////////// --%>
-		
-	<c:set var="i" value="0" />
+	<% } %>
+	
+%>/////////////////////// EL / JSTL 적용으로 주석 처리 //////////////////////// --%>
+
+<c:set var="i" value="0" />
 	<c:forEach var="pro" items="${list}">
 		<c:set var="i" value="${ i+1 }" />
 		<tr class="ct_list_pop">
@@ -171,13 +214,42 @@
 			<td></td>
 			<td align="left">${pro.price}</td>
 			<td></td>
-			<td align="left">${pro.manuDate}
-			</td>		
+			<td align="left">${pro.manuDate}</td>		
+			<td></td>
+		<td align="left">
+		
+		<c:choose>
+		
+		  <c:when test="${menu eq 'manage'}">
+		    <c:choose>
+		      <c:when test="${empty pro.proTranCode}">판매중</c:when>
+		      <c:when test="${fn:trim(pro.proTranCode) eq '2'}">
+		      구매완료
+		      <a href="/product/updateTranCode?prodNo=${pro.prodNo}&tranCode=3">배송하기</a>
+		      </c:when>
+		      <c:when test="${fn:trim(pro.proTranCode) eq '3'}">
+		      배송중
+		      </c:when>
+		      <c:when test="${fn:trim(pro.proTranCode) eq '4'}">배송완료</c:when>
+		    </c:choose> 
+		  </c:when>
+		  
+		  <c:when test="${menu eq 'search'}">
+		    <c:choose>
+		      <c:when test="${fn:trim(pro.proTranCode) eq '2'||fn:trim(pro.proTranCode) eq '3'||fn:trim(pro.proTranCode) eq '4'}">재고없음</c:when>
+		      <c:otherwise>판매중</c:otherwise>
+		    </c:choose>
+		  </c:when>
+		  
+		</c:choose>
+		 
+		</td>	
 		</tr>
 		<tr>
 		<td colspan="11" bgcolor="D6D7D6" height="1"></td>
 		</tr>
 	</c:forEach>
+		
 	</table>
 
 
