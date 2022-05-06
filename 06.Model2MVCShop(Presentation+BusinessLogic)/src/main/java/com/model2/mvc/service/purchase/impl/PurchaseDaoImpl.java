@@ -51,6 +51,8 @@ public class PurchaseDaoImpl implements PurchaseDao{
 
 	public Map<String, Object> getPurchaseList(Search search, String userId) throws Exception {
 		
+		System.out.println("daoimpl:"+userId);
+		
 		Map<String , Object>  map = new HashMap<String, Object>();
 		
 		map.put("search", search);
@@ -63,7 +65,7 @@ public class PurchaseDaoImpl implements PurchaseDao{
 		//	list.get(i).setPurchaseProd((Product)sqlSession.selectOne("ProductMapper.getProduct", list.get(i).getPurchaseProd().getProdNo()));
 		//}
 		
-		map.put("totalCountDao", sqlSession.selectOne("PurchaseMapper.getTotalCount", userId));
+		map.put("totalCountDao", sqlSession.selectOne("PurchaseMapper.getTotalCount",userId));
 		map.put("listDao", list);
 
 	    return map;

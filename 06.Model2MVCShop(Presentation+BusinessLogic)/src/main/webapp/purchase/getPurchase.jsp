@@ -84,19 +84,15 @@ String userId=((User)session.getAttribute("user")).getUserId();
 			<% }else{ %>
 			    신용구매
 			<%} %>	/////////////////////// EL / JSTL 적용으로 주석 처리 //////////////////////// --%>
-		
-		<c:set var="paymentOption" value="${purchase.paymentOption}">
-		
+			
 		<c:choose>
-		    <c:when test="${paymentOption eq '1'}">
+		    <c:when test="${purchase.paymentOption eq '1'}">
 		    <a>현금구매</a>
 		    </c:when>
-		    <c:when test="${paymentOption eq '2'}">
+		    <c:when test="${purchase.paymentOption eq '2'}">
 		    <a>신용구매</a>
 		    </c:when>
 		</c:choose>
-		
-		</c:set>
 		
 		</td>
 	</tr>

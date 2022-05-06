@@ -6,6 +6,7 @@
 
 <mapper namespace="PurchaseMapper">
  	
+ 	
 	<resultMap id="purchaseSelectMap" type="purchase">
     	<result property="tranNo" 			column="tran_no" 			jdbcType="NUMERIC"/>
 		<result property="paymentOption" 	column="payment_option" 	jdbcType="CHAR" />
@@ -18,7 +19,7 @@
 		<result property="divyDate" 		column="dlvy_date" 		    jdbcType="VARCHAR" />
 		
 		<association property="buyer" javaType="user" >
-			<result property="userId" 	  column="user_id" 			jdbcType="VARCHAR"/>
+			<result property="userId" 	  column="buyer_id" 			jdbcType="VARCHAR"/>
 			<result property="userName"	  column="user_name" 		jdbcType="VARCHAR" />
 			<result property="password"   column="password" 		jdbcType="VARCHAR" />
 			<result property="role" 	  column="role" 			jdbcType="VARCHAR" />
@@ -39,14 +40,13 @@
 		</association>
 	</resultMap>
 	
-	
 	<!-- SQL : INSERT -->
 	<insert 	id="addPurchase" parameterType="purchase" >
 	 	INSERT 
 	 	INTO transaction 
 	 	VALUES (seq_transaction_tran_no.NEXTVAL,#{purchaseProd.prodNo:NUMERIC},#{buyer.userId:VARCHAR},
 	 	       #{paymentOption:VARCHAR},#{receiverName:VARCHAR},#{receiverPhone:VARCHAR},#{divyAddr:VARCHAR},
-	 	       #{divyRequest:VARCHAR},2,SYSDATE, #{divyDate:VARCHAR})
+	 	       #{divyRequest:VARCHAR},#{tranCode:VARCHAR},SYSDATE, #{divyDate:VARCHAR})
 	 </insert>
 	 
 	 
@@ -55,7 +55,7 @@
 		SELECT
 		*
 		FROM transaction t, product p, users u
-		WHERE t.prod_no=p.prod_no AND t.buyer_id=u.user_id AND tran_no = #{tranNo}
+		WHERE t.prod_no=p.prod_no AND t.buyer_id=u.user_id AND tran_no = #{value}
 	 </select>
 	 
 	 

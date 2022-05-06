@@ -124,41 +124,45 @@ function fncGetPurchaseList(currentPage) {
 	%>/////////////////////// EL / JSTL 적용으로 주석 처리 //////////////////////// --%>
 	
 	<c:set var="i" value="0" />
-	<c:forEach var="produdct" items="${list}">
+	<c:forEach var="purchase" items="${list}">
 		<c:set var="i" value="${ i+1 }" />
 		<tr class="ct_list_pop">
 			<td align="center"><a href="/getPurchase.do?tranNo=${purchase.tranNo}">${ i }</a></td>
 			<td></td>
 			<td align="left"><a href="/getUser.do?userId=${user.userId}">${user.userId}</a></td>
 			<td></td>
-			<td align="left">${purchase.receiverName}</td>
+			<td align="left">${user.userName}</td>
 			<td></td>
 			<td align="left">${purchase.receiverPhone}
 			</td>		
-		</tr>
 		<td></td>
 
 		<td align="left">현재
-				
-					<c:set var="tranCode" value="${purchase.tranCode}">
 		
 					<c:choose>
-					    <c:when test="${paymentOption eq '2'}">
+					    <c:when test="${empty purchase.tranCode}">
+					    <a>판매중</a>
+					    </c:when>
+					    <c:when test="${purchase.tranCode eq '2'}">
 					    <a>구매완료</a>
 					    </c:when>
-					    <c:when test="${paymentOption eq '3'}">
+					    <c:when test="${purchase.tranCode eq '3'}">
 					    <a>배송중</a>
 					    </c:when>
-					    <c:when test="${paymentOption eq '4'}">
+					    <c:when test="${purchase.tranCode eq '4'}">
 					    <a>배송완료</a>
 					    </c:when>
 					    
 					</c:choose>
-					
-					</c:set>
 
 				상태 입니다.</td>
 		<td></td>
+
+			<c:if test="${purchase.tranCode eq '3'}">
+			    <a href="/updateTranCode.do?tranNo="${purchase.tranNo}&tranCode=4">물건도착</a>
+			</c:if>
+		</td>
+		
 		<td align="left">
 			
 		</td>

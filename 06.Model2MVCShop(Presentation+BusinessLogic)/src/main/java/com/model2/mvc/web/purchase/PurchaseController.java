@@ -85,7 +85,7 @@ public class PurchaseController {
 
 		return "forward:/purchase/getPurchase.jsp";
 	}
-/*
+
 	@RequestMapping("/updatePurchaseView.do")
 	public String updatePurchaseView(@RequestParam("tranNo") int tranNo, Model model) throws Exception {
 
@@ -108,7 +108,7 @@ public class PurchaseController {
 
 		return "redirect:/getPurchase.do?tranNo=" + purchase.getTranNo();
 	}
-	*/
+
 	@RequestMapping("/updateTranCode.do")
 	public String updatePurchase(@RequestParam("prodNo") int prodNo, @RequestParam("tranCode") String tranCode, @ModelAttribute("purchase") Purchase purchase)
 			throws Exception {
@@ -123,20 +123,21 @@ public class PurchaseController {
 	}
 
 	@RequestMapping("/listPurchase.do")
-	public String listPurchase(@ModelAttribute("search") Search search, @ModelAttribute("user") User user, Model model)
+	public String listPurchase(@ModelAttribute("search") Search search, Model model, HttpSession session)
 			throws Exception {
 
 		System.out.println("/listPurchase.do");
+		
+		//String userId=((User)session.getAttribute("user")).getUserId();
+		//System.out.println("controller:"+userId);
 
 		if (search.getCurrentPage() == 0) {
 			search.setCurrentPage(1);
 		}
 		search.setPageSize(pageSize);
-		
-		String userId=user.getUserId();
 
 		// Business logic ผ๖วเ
-		Map<String, Object> map = purchaseService.getPurchaseList(search, userId);
+		Map<String, Object> map = purchaseService.getPurchaseList(search, ((User)session.getAttribute("user")).getUserId());
 
 		Page resultPage = new Page(search.getCurrentPage(), ((Integer) map.get("totalCount")).intValue(), pageUnit,
 				pageSize);
